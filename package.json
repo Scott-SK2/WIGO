@@ -1,0 +1,17 @@
+{
+  "name": "wigo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "WIGO — Trouve ta prochaine sortie. Monorepo web / mobile / API.",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "dev:web": "pnpm --filter @wigo/web dev",
+    "build:web": "pnpm --filter @wigo/web build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "gen:api": "pnpm --filter @wigo/shared gen"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

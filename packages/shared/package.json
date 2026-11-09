@@ -1,0 +1,15 @@
+{
+  "name": "@wigo/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Types et client API partagés entre le web et le mobile (générés depuis OpenAPI).",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "gen": "openapi-typescript ./openapi.yaml -o ./src/api.d.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,4550 @@
+openapi: 3.0.3
+info:
+  title: WIGO API
+  version: 1.0.0
+  description: API publique et organisateurs de WIGO — Trouve ta prochaine sortie.
+paths:
+  /api/v1/admin/audit:
+    get:
+      operationId: admin_audit_list
+      description: GET /api/v1/admin/audit — journal (ADM-05), réservé aux administrateurs.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: La valeur du curseur de pagination.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Nombre de résultats à retourner par page.
+        schema:
+          type: integer
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+  /api/v1/admin/claims:
+    get:
+      operationId: admin_claims_list
+      description: GET /api/v1/admin/claims — revendications en attente (CAT-03).
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/v1/admin/claims/{id}/decide:
+    post:
+      operationId: admin_claims_decide_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClaimDecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClaimDecisionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/v1/admin/imports:
+    get:
+      operationId: admin_imports_list
+      description: GET/POST /api/v1/admin/imports — sources partenaires et déclenchement
+        (CAT-02).
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportSource'
+          description: ''
+    post:
+      operationId: admin_imports_create
+      description: GET/POST /api/v1/admin/imports — sources partenaires et déclenchement
+        (CAT-02).
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportTriggerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImportTriggerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportTriggerRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '202':
+          description: No response body
+  /api/v1/admin/moderation:
+    get:
+      operationId: admin_moderation_list
+      description: GET /api/v1/admin/moderation — file « À valider » ; POST — décision
+        (ADM-01, ADM-02).
+      parameters:
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: PENDING_REVIEW (défaut) | CHANGES_REQUESTED | REJECTED | PUBLISHED
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModerationQueueItem'
+          description: ''
+    post:
+      operationId: admin_moderation_create
+      description: GET /api/v1/admin/moderation — file « À valider » ; POST — décision
+        (ADM-01, ADM-02).
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerationActionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModerationActionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModerationActionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModerationQueueItem'
+          description: ''
+  /api/v1/admin/moderation/reasons:
+    get:
+      operationId: admin_moderation_reasons_retrieve
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+          description: ''
+  /api/v1/admin/reports:
+    get:
+      operationId: admin_reports_list
+      description: GET /api/v1/admin/reports — signalements ouverts.
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+          description: ''
+  /api/v1/admin/reports/{id}/decide:
+    post:
+      operationId: admin_reports_decide_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportDecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportDecisionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+          description: ''
+  /api/v1/admin/selection:
+    get:
+      operationId: admin_selection_retrieve
+      description: GET/POST /api/v1/admin/selection — sélection du week-end (ADM-09).
+      parameters:
+      - in: query
+        name: week_start
+        schema:
+          type: string
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Selection'
+          description: ''
+    post:
+      operationId: admin_selection_create
+      description: GET/POST /api/v1/admin/selection — sélection du week-end (ADM-09).
+      tags:
+      - admin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelectionWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SelectionWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SelectionWriteRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Selection'
+          description: ''
+  /api/v1/admin/stats:
+    get:
+      operationId: admin_stats_retrieve
+      description: GET /api/v1/admin/stats — tableau KPI (ANA-01, §2.5).
+      tags:
+      - admin
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: ''
+  /api/v1/areas:
+    get:
+      operationId: areas_list
+      description: GET /api/v1/areas — communes et quartiers.
+      tags:
+      - areas
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Area'
+          description: ''
+  /api/v1/auth/login:
+    post:
+      operationId: auth_login_create
+      description: 'AUTH-03 : paire de jetons (access 15 min, refresh 14 j avec rotation).'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/v1/auth/logout:
+    post:
+      operationId: auth_logout_create
+      description: 'Révocation de la session : le refresh token est mis sur liste
+        noire.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/me:
+    get:
+      operationId: auth_me_retrieve
+      description: 'AUTH-05 / AUTH-06 : profil, suppression du compte (anonymisation).'
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+    put:
+      operationId: auth_me_update
+      description: 'AUTH-05 / AUTH-06 : profil, suppression du compte (anonymisation).'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MeRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      description: 'AUTH-05 / AUTH-06 : profil, suppression du compte (anonymisation).'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMeRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+    delete:
+      operationId: auth_me_destroy
+      description: 'AUTH-05 / AUTH-06 : profil, suppression du compte (anonymisation).'
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/me/export:
+    get:
+      operationId: auth_me_export_retrieve
+      description: 'AUTH-06 / RG-18 : export des données personnelles (JSON).'
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+          description: ''
+  /api/v1/auth/password-reset:
+    post:
+      operationId: auth_password_reset_create
+      description: 'AUTH-04 : demande de réinitialisation (réponse identique que l''e-mail
+        existe ou non).'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '202':
+          description: No response body
+  /api/v1/auth/password-reset/confirm:
+    post:
+      operationId: auth_password_reset_confirm_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/refresh:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/auth/register:
+    post:
+      operationId: auth_register_create
+      description: 'AUTH-01 : inscription par e-mail, envoi du lien de vérification
+        (RG-02).'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/v1/auth/resend-verification:
+    post:
+      operationId: auth_resend_verification_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '202':
+          description: No response body
+  /api/v1/auth/verify-email:
+    post:
+      operationId: auth_verify_email_create
+      description: 'AUTH-02 : consommation du jeton de vérification.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+  /api/v1/categories:
+    get:
+      operationId: categories_list
+      description: GET /api/v1/categories — taxonomie complète (liste plate avec parent).
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/events:
+    get:
+      operationId: events_list
+      description: GET /api/v1/events (recherche publique) et POST /api/v1/events
+        (brouillon organisateur).
+      parameters:
+      - in: query
+        name: accessible
+        schema:
+          type: boolean
+        description: Accès PMR
+      - in: query
+        name: after
+        schema:
+          type: string
+        description: Heure de début minimale (ex. 18)
+      - in: query
+        name: area
+        schema:
+          type: string
+        description: Slug de commune ou de quartier
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Slug de catégorie (inclut les sous-catégories)
+      - in: query
+        name: cursor
+        schema:
+          type: string
+      - in: query
+        name: date
+        schema:
+          type: string
+        description: today | tomorrow | weekend | AAAA-MM-JJ
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      - in: query
+        name: family
+        schema:
+          type: boolean
+        description: En famille
+      - in: query
+        name: format
+        schema:
+          type: string
+        description: ONSITE | ONLINE | HYBRID
+      - in: query
+        name: free
+        schema:
+          type: boolean
+      - in: query
+        name: include_online
+        schema:
+          type: boolean
+        description: 'Inclure les événements en ligne (défaut : non)'
+      - in: query
+        name: lang
+        schema:
+          type: string
+        description: fr | nl | en
+      - in: query
+        name: lat
+        schema:
+          type: number
+          format: double
+      - in: query
+        name: lon
+        schema:
+          type: number
+          format: double
+      - in: query
+        name: max_price
+        schema:
+          type: number
+          format: double
+      - in: query
+        name: page_size
+        schema:
+          type: integer
+      - in: query
+        name: paid
+        schema:
+          type: boolean
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Recherche texte (titre, description, tags, organisateur, lieu)
+      - in: query
+        name: radius_km
+        schema:
+          type: number
+          format: double
+      - in: query
+        name: sort
+        schema:
+          type: string
+        description: relevance | date | distance
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventCard'
+          description: ''
+    post:
+      operationId: events_create
+      description: GET /api/v1/events (recherche publique) et POST /api/v1/events
+        (brouillon organisateur).
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EventWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EventWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventOwner'
+          description: ''
+  /api/v1/events/{id}:
+    get:
+      operationId: events_retrieve
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventOwner'
+          description: ''
+    patch:
+      operationId: events_partial_update
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEventWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEventWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEventWriteRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventWrite'
+          description: ''
+    delete:
+      operationId: events_destroy
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/events/{id}/back-to-draft:
+    post:
+      operationId: events_back_to_draft_create
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventOwner'
+          description: ''
+  /api/v1/events/{id}/cancel:
+    post:
+      operationId: events_cancel_create
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventOwner'
+          description: ''
+  /api/v1/events/{id}/confirm:
+    post:
+      operationId: events_confirm_create
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventOwner'
+          description: ''
+  /api/v1/events/{id}/media:
+    post:
+      operationId: events_media_create
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaUploadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MediaUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MediaUploadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+          description: ''
+  /api/v1/events/{id}/media/{media_id}:
+    delete:
+      operationId: events_media_destroy
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      - in: path
+        name: media_id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/events/{id}/stats:
+    get:
+      operationId: events_stats_retrieve
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+          description: ''
+  /api/v1/events/{id}/submit:
+    post:
+      operationId: events_submit_create
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventOwner'
+          description: ''
+  /api/v1/events/{slug}:
+    get:
+      operationId: events_retrieve_2
+      description: |-
+        GET /api/v1/events            recherche et liste paginée (SRC-01)
+        GET /api/v1/events/{slug}     fiche publique
+        GET /api/v1/events/{slug}/ics export calendrier
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9-]*$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDetail'
+          description: ''
+  /api/v1/events/{slug}/ics:
+    get:
+      operationId: events_ics_retrieve
+      description: |-
+        GET /api/v1/events            recherche et liste paginée (SRC-01)
+        GET /api/v1/events/{slug}     fiche publique
+        GET /api/v1/events/{slug}/ics export calendrier
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9-]*$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            text/calendar:
+              schema:
+                type: string
+          description: ''
+  /api/v1/events/{slug}/out:
+    get:
+      operationId: events_out_retrieve
+      description: 'Compte les clics billetterie (RG-17 : un clic n''est pas une vente)
+        puis redirige.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9-]*$
+        required: true
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '302':
+          description: No response body
+  /api/v1/events/counts:
+    get:
+      operationId: events_counts_retrieve
+      description: Compteurs par catégorie pour les chips (SCR-01 / SCR-02).
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/events/mine:
+    get:
+      operationId: events_mine_list
+      description: |-
+        POST   /api/v1/events                brouillon (RG-02 : e-mail vérifié)
+        GET    /api/v1/events/mine           mes événements (tous statuts)
+        GET    /api/v1/events/{id}           vue organisateur
+        PATCH  /api/v1/events/{id}           édition (RG-11 pour les modifications importantes)
+        DELETE /api/v1/events/{id}           suppression d'un brouillon
+        POST   /api/v1/events/{id}/submit | /cancel | /confirm
+        GET    /api/v1/events/{id}/stats
+        POST   /api/v1/events/{id}/media     upload d'un visuel ; DELETE /media/{media_id}
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: La valeur du curseur de pagination.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Nombre de résultats à retourner par page.
+        schema:
+          type: integer
+      tags:
+      - events
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEventOwnerList'
+          description: ''
+  /api/v1/home:
+    get:
+      operationId: home_retrieve
+      description: 'GET /api/v1/home — raccourcis de l''accueil (SCR-01) : ce soir,
+        week-end, sélection WIGO.'
+      tags:
+      - home
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/me/favorites:
+    get:
+      operationId: me_favorites_list
+      description: GET / POST / DELETE /api/v1/me/favorites (UI-05, fusion des favoris
+        locaux).
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventCard'
+          description: ''
+    post:
+      operationId: me_favorites_create
+      description: GET / POST / DELETE /api/v1/me/favorites (UI-05, fusion des favoris
+        locaux).
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FavoriteWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FavoriteWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FavoriteWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventCard'
+          description: ''
+    delete:
+      operationId: me_favorites_destroy
+      description: GET / POST / DELETE /api/v1/me/favorites (UI-05, fusion des favoris
+        locaux).
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/me/favorites/{slug}:
+    get:
+      operationId: me_favorites_list_2
+      description: GET / POST / DELETE /api/v1/me/favorites (UI-05, fusion des favoris
+        locaux).
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventCard'
+          description: ''
+    post:
+      operationId: me_favorites_create_2
+      description: GET / POST / DELETE /api/v1/me/favorites (UI-05, fusion des favoris
+        locaux).
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FavoriteWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FavoriteWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FavoriteWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventCard'
+          description: ''
+    delete:
+      operationId: me_favorites_destroy_2
+      description: GET / POST / DELETE /api/v1/me/favorites (UI-05, fusion des favoris
+        locaux).
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/me/preferences:
+    get:
+      operationId: me_preferences_retrieve
+      description: 'SCR-13 : quartiers, envies, interrupteurs de notification.'
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+          description: ''
+    patch:
+      operationId: me_preferences_partial_update
+      description: 'SCR-13 : quartiers, envies, interrupteurs de notification.'
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPreferencesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPreferencesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPreferencesRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Preferences'
+          description: ''
+  /api/v1/newsletter:
+    post:
+      operationId: newsletter_create
+      description: POST /api/v1/newsletter — inscription avec double opt-in (RET-02).
+      tags:
+      - newsletter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '202':
+          description: No response body
+  /api/v1/newsletter/confirm:
+    get:
+      operationId: newsletter_confirm_retrieve
+      parameters:
+      - in: query
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - newsletter
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/newsletter/unsubscribe:
+    get:
+      operationId: newsletter_unsubscribe_retrieve
+      description: Désinscription en un clic (GET pour les liens d'e-mail, POST pour
+        List-Unsubscribe).
+      parameters:
+      - in: query
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - newsletter
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: newsletter_unsubscribe_create
+      description: Désinscription en un clic (GET pour les liens d'e-mail, POST pour
+        List-Unsubscribe).
+      tags:
+      - newsletter
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/organizations:
+    get:
+      operationId: organizations_list
+      description: |-
+        GET  /organizations/{slug}        profil public
+        POST /organizations               création (propriétaire = créateur)
+        POST /organizations/{slug}/claim  revendication
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: La valeur du curseur de pagination.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Nombre de résultats à retourner par page.
+        schema:
+          type: integer
+      tags:
+      - organizations
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrganizationPublicList'
+          description: ''
+    post:
+      operationId: organizations_create
+      description: |-
+        GET  /organizations/{slug}        profil public
+        POST /organizations               création (propriétaire = créateur)
+        POST /organizations/{slug}/claim  revendication
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrganizationWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrganizationWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationWrite'
+          description: ''
+  /api/v1/organizations/{slug}:
+    get:
+      operationId: organizations_retrieve
+      description: |-
+        GET  /organizations/{slug}        profil public
+        POST /organizations               création (propriétaire = créateur)
+        POST /organizations/{slug}/claim  revendication
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - organizations
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationPublic'
+          description: ''
+    patch:
+      operationId: organizations_partial_update
+      description: |-
+        GET  /organizations/{slug}        profil public
+        POST /organizations               création (propriétaire = créateur)
+        POST /organizations/{slug}/claim  revendication
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrganizationWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrganizationWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrganizationWriteRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationWrite'
+          description: ''
+  /api/v1/organizations/{slug}/claim:
+    post:
+      operationId: organizations_claim_create
+      description: |-
+        GET  /organizations/{slug}        profil public
+        POST /organizations               création (propriétaire = créateur)
+        POST /organizations/{slug}/claim  revendication
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClaimRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClaimRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/v1/organizations/{slug}/members:
+    post:
+      operationId: organizations_members_create
+      description: 'ORG-03 : seul un propriétaire gère les membres.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MemberRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MemberRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationPrivate'
+          description: ''
+    delete:
+      operationId: organizations_members_destroy
+      description: 'ORG-03 : seul un propriétaire gère les membres.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - organizations
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationPrivate'
+          description: ''
+  /api/v1/reports:
+    post:
+      operationId: reports_create
+      description: POST /api/v1/reports — signalement, anonyme ou connecté (RG-16).
+      tags:
+      - reports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportCreate'
+          description: ''
+  /api/v1/selection:
+    get:
+      operationId: selection_retrieve
+      description: GET /api/v1/selection — sélection publique de la semaine (badges
+        « Sélection WIGO »).
+      tags:
+      - selection
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Selection'
+          description: ''
+  /api/v1/venues:
+    get:
+      operationId: venues_list
+      description: Lieux existants (recherche par nom) et création (étape 2 du formulaire).
+      tags:
+      - venues
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venue'
+          description: ''
+    post:
+      operationId: venues_create
+      description: Lieux existants (recherche par nom) et création (étape 2 du formulaire).
+      tags:
+      - venues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VenueWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VenueWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VenueWriteRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueWrite'
+          description: ''
+  /api/v1/venues/{slug}:
+    get:
+      operationId: venues_retrieve
+      description: Lieux existants (recherche par nom) et création (étape 2 du formulaire).
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - venues
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+          description: ''
+components:
+  schemas:
+    AgePolicyEnum:
+      enum:
+      - ALL
+      - MIN_AGE
+      - ADULTS_ONLY
+      type: string
+      description: |-
+        * `ALL` - Tout public
+        * `MIN_AGE` - Dès N ans
+        * `ADULTS_ONLY` - 18+
+    Area:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 80
+          pattern: ^[-a-zA-Z0-9_]+$
+        kind:
+          $ref: '#/components/schemas/AreaKindEnum'
+        name:
+          type: object
+          additionalProperties:
+            type: string
+          readOnly: true
+        parent:
+          type: string
+          readOnly: true
+        postal_codes:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        centroid:
+          allOf:
+          - $ref: '#/components/schemas/LatLonField'
+          nullable: true
+          readOnly: true
+      required:
+      - centroid
+      - kind
+      - name
+      - parent
+      - postal_codes
+      - slug
+    AreaKindEnum:
+      enum:
+      - REGION
+      - MUNICIPALITY
+      - NEIGHBOURHOOD
+      type: string
+      description: |-
+        * `REGION` - Région
+        * `MUNICIPALITY` - Commune
+        * `NEIGHBOURHOOD` - Quartier
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        actor:
+          type: string
+          readOnly: true
+        action:
+          type: string
+          maxLength: 60
+        target_type:
+          type: string
+          maxLength: 60
+        target_id:
+          type: string
+          maxLength: 64
+        before: {}
+        after: {}
+        note:
+          type: string
+          maxLength: 300
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - actor
+      - created_at
+      - id
+    BlankEnum:
+      enum:
+      - ''
+    Category:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 60
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: object
+          additionalProperties:
+            type: string
+          readOnly: true
+        parent:
+          type: string
+          readOnly: true
+        icon:
+          type: string
+          description: Nom d'icône du design system
+          maxLength: 40
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        is_launch_niche:
+          type: boolean
+          description: 'Niche de lancement (§2.3) : alimentation active'
+      required:
+      - name
+      - parent
+      - slug
+    CategoryEnum:
+      enum:
+      - SPAM
+      - ILLEGAL
+      - HATE
+      - WRONG_INFO
+      - DUPLICATE
+      - RIGHTS
+      - SUSPICIOUS_LINK
+      - OTHER
+      type: string
+      description: |-
+        * `SPAM` - Spam ou publicité déguisée
+        * `ILLEGAL` - Contenu illégal
+        * `HATE` - Discrimination ou haine
+        * `WRONG_INFO` - Informations fausses ou périmées
+        * `DUPLICATE` - Doublon
+        * `RIGHTS` - Droits d'auteur / image
+        * `SUSPICIOUS_LINK` - Lien suspect
+        * `OTHER` - Autre
+    CategoryMini:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 60
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: object
+          additionalProperties:
+            type: string
+          readOnly: true
+        icon:
+          type: string
+          description: Nom d'icône du design system
+          maxLength: 40
+      required:
+      - name
+      - slug
+    Claim:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        evidence:
+          type: string
+          description: E-mail de domaine, contact officiel, preuve…
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ClaimStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - evidence
+      - id
+      - status
+    ClaimDecisionRequest:
+      type: object
+      properties:
+        approve:
+          type: boolean
+        note:
+          type: string
+      required:
+      - approve
+    ClaimRequest:
+      type: object
+      properties:
+        evidence:
+          type: string
+          minLength: 1
+          description: E-mail de domaine, contact officiel, preuve…
+      required:
+      - evidence
+    ClaimStatusEnum:
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
+      type: string
+      description: |-
+        * `PENDING` - En attente
+        * `APPROVED` - Approuvée
+        * `REJECTED` - Refusée
+    Decision:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        action:
+          $ref: '#/components/schemas/DecisionActionEnum'
+        reason_code:
+          oneOf:
+          - $ref: '#/components/schemas/ReasonCodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reason_label:
+          type: string
+          readOnly: true
+        comment:
+          type: string
+          description: Exposé des motifs transmis à l'organisateur
+        moderator:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action
+      - created_at
+      - id
+      - moderator
+      - reason_label
+    DecisionActionEnum:
+      enum:
+      - APPROVE
+      - REJECT
+      - REQUEST_CHANGES
+      - UNPUBLISH
+      - SUSPEND
+      type: string
+      description: |-
+        * `APPROVE` - Approuvé
+        * `REJECT` - Refusé
+        * `REQUEST_CHANGES` - Corrections demandées
+        * `UNPUBLISH` - Dépublié
+        * `SUSPEND` - Organisateur suspendu
+    DecisionRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+    EmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    EventAccessibility:
+      type: object
+      properties:
+        wheelchair:
+          type: boolean
+          nullable: true
+        adapted_toilets:
+          type: boolean
+          nullable: true
+        hearing_loop:
+          type: boolean
+          nullable: true
+        sign_language:
+          type: boolean
+          nullable: true
+        sensory_friendly:
+          type: boolean
+          nullable: true
+        notes:
+          type: string
+        event_notes:
+          type: string
+    EventCard:
+      type: object
+      description: 'Carte événement (UI-03) : liste, carte, favoris, sélection.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+        title:
+          type: string
+          maxLength: 160
+        status:
+          $ref: '#/components/schemas/EventStatusEnum'
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        primary_category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        organizer:
+          allOf:
+          - $ref: '#/components/schemas/Organizer'
+          readOnly: true
+        venue:
+          allOf:
+          - $ref: '#/components/schemas/VenueMini'
+          nullable: true
+          readOnly: true
+        poster:
+          allOf:
+          - $ref: '#/components/schemas/Media'
+          nullable: true
+          readOnly: true
+        pricing:
+          allOf:
+          - $ref: '#/components/schemas/Pricing'
+          readOnly: true
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        languages:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        next_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        first_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_end:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_long:
+          type: boolean
+          readOnly: true
+          default: false
+        distance_km:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+      required:
+      - distance_km
+      - first_start
+      - id
+      - is_long
+      - languages
+      - last_end
+      - next_start
+      - organizer
+      - poster
+      - pricing
+      - primary_category
+      - slug
+      - title
+      - venue
+      - visibility
+    EventDetail:
+      type: object
+      description: Fiche événement (SCR-04, §5.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+        title:
+          type: string
+          maxLength: 160
+        status:
+          $ref: '#/components/schemas/EventStatusEnum'
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        primary_category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        organizer:
+          allOf:
+          - $ref: '#/components/schemas/Organizer'
+          readOnly: true
+        venue:
+          allOf:
+          - $ref: '#/components/schemas/Venue'
+          readOnly: true
+        poster:
+          allOf:
+          - $ref: '#/components/schemas/Media'
+          nullable: true
+          readOnly: true
+        pricing:
+          allOf:
+          - $ref: '#/components/schemas/Pricing'
+          readOnly: true
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        languages:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        next_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        first_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_end:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_long:
+          type: boolean
+          readOnly: true
+          default: false
+        distance_km:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        secondary_categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagMini'
+          readOnly: true
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occurrence'
+          readOnly: true
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+          readOnly: true
+        online_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        ticketing:
+          allOf:
+          - $ref: '#/components/schemas/Ticketing'
+          nullable: true
+          readOnly: true
+        registration_required:
+          type: boolean
+        accessibility:
+          allOf:
+          - $ref: '#/components/schemas/EventAccessibility'
+          readOnly: true
+        urls:
+          allOf:
+          - $ref: '#/components/schemas/EventUrls'
+          readOnly: true
+        is_favorite:
+          type: boolean
+          readOnly: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - accessibility
+      - description
+      - distance_km
+      - first_start
+      - id
+      - is_favorite
+      - is_long
+      - languages
+      - last_end
+      - media
+      - next_start
+      - occurrences
+      - organizer
+      - poster
+      - pricing
+      - primary_category
+      - secondary_categories
+      - slug
+      - tags
+      - ticketing
+      - title
+      - updated_at
+      - urls
+      - venue
+      - visibility
+    EventOwner:
+      type: object
+      description: 'Vue organisateur : inclut les champs de gestion.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+        title:
+          type: string
+          maxLength: 160
+        status:
+          $ref: '#/components/schemas/EventStatusEnum'
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        primary_category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        organizer:
+          allOf:
+          - $ref: '#/components/schemas/Organizer'
+          readOnly: true
+        venue:
+          allOf:
+          - $ref: '#/components/schemas/Venue'
+          readOnly: true
+        poster:
+          allOf:
+          - $ref: '#/components/schemas/Media'
+          nullable: true
+          readOnly: true
+        pricing:
+          allOf:
+          - $ref: '#/components/schemas/Pricing'
+          readOnly: true
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        languages:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        next_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        first_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_end:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_long:
+          type: boolean
+          readOnly: true
+          default: false
+        distance_km:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        secondary_categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagMini'
+          readOnly: true
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occurrence'
+          readOnly: true
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+          readOnly: true
+        online_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        ticketing:
+          allOf:
+          - $ref: '#/components/schemas/Ticketing'
+          nullable: true
+          readOnly: true
+        registration_required:
+          type: boolean
+        accessibility:
+          allOf:
+          - $ref: '#/components/schemas/EventAccessibility'
+          readOnly: true
+        urls:
+          allOf:
+          - $ref: '#/components/schemas/EventUrls'
+          readOnly: true
+        is_favorite:
+          type: boolean
+          readOnly: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        organization:
+          type: string
+          readOnly: true
+        draft_step:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Dernière étape du formulaire
+        source:
+          $ref: '#/components/schemas/SourceEnum'
+        link_review_required:
+          type: boolean
+          description: Lien billetterie hors liste blanche à revoir (RG-21)
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_confirmed_at:
+          type: string
+          format: date-time
+          nullable: true
+        submission_errors:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - accessibility
+      - created_at
+      - description
+      - distance_km
+      - first_start
+      - id
+      - is_favorite
+      - is_long
+      - languages
+      - last_end
+      - media
+      - next_start
+      - occurrences
+      - organization
+      - organizer
+      - poster
+      - pricing
+      - primary_category
+      - secondary_categories
+      - slug
+      - submission_errors
+      - tags
+      - ticketing
+      - title
+      - updated_at
+      - urls
+      - venue
+      - visibility
+    EventStatusEnum:
+      enum:
+      - DRAFT
+      - PENDING_REVIEW
+      - CHANGES_REQUESTED
+      - REJECTED
+      - PUBLISHED
+      - CANCELLED
+      - ARCHIVED
+      type: string
+      description: |-
+        * `DRAFT` - Brouillon
+        * `PENDING_REVIEW` - En attente de modération
+        * `CHANGES_REQUESTED` - Corrections demandées
+        * `REJECTED` - Refusé
+        * `PUBLISHED` - Publié
+        * `CANCELLED` - Annulé
+        * `ARCHIVED` - Archivé
+    EventUrls:
+      type: object
+      properties:
+        canonical:
+          type: string
+          format: uri
+        ics:
+          type: string
+        fr:
+          type: string
+          format: uri
+        nl:
+          type: string
+          format: uri
+        en:
+          type: string
+          format: uri
+      required:
+      - canonical
+      - en
+      - fr
+      - ics
+      - nl
+    EventWrite:
+      type: object
+      description: Création et édition par l'organisateur (EVT-02). Séances imbriquées,
+        remplacées en bloc.
+      properties:
+        title:
+          type: string
+          maxLength: 160
+        description:
+          type: string
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguagesEnum'
+        primary_category:
+          type: string
+        secondary_categories:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        venue:
+          type: integer
+          nullable: true
+        online_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        pricing_type:
+          $ref: '#/components/schemas/PricingTypeEnum'
+        price_min:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        price_max:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        currency:
+          type: string
+          maxLength: 3
+        price_details:
+          type: string
+          maxLength: 200
+        ticketing_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        registration_required:
+          type: boolean
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        accessibility_notes:
+          type: string
+          maxLength: 300
+        organization:
+          type: string
+          nullable: true
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occurrence'
+        draft_step:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Dernière étape du formulaire
+      required:
+      - primary_category
+      - title
+    EventWriteRequest:
+      type: object
+      description: Création et édition par l'organisateur (EVT-02). Séances imbriquées,
+        remplacées en bloc.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        description:
+          type: string
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguagesEnum'
+        primary_category:
+          type: string
+          minLength: 1
+        secondary_categories:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        venue:
+          type: integer
+          nullable: true
+        online_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        pricing_type:
+          $ref: '#/components/schemas/PricingTypeEnum'
+        price_min:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        price_max:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        price_details:
+          type: string
+          maxLength: 200
+        ticketing_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        registration_required:
+          type: boolean
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        accessibility_notes:
+          type: string
+          maxLength: 300
+        organization:
+          type: string
+          minLength: 1
+          nullable: true
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/OccurrenceRequest'
+        draft_step:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Dernière étape du formulaire
+      required:
+      - primary_category
+      - title
+    FavoriteWriteRequest:
+      type: object
+      properties:
+        event:
+          type: string
+          minLength: 1
+      required:
+      - event
+    FormatEnum:
+      enum:
+      - ONSITE
+      - ONLINE
+      - HYBRID
+      type: string
+      description: |-
+        * `ONSITE` - Présentiel
+        * `ONLINE` - En ligne
+        * `HYBRID` - Hybride
+    ImportSource:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        kind:
+          type: string
+          description: uitdatabank, agenda_brussels, ics, csv…
+          maxLength: 40
+        url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        licence:
+          type: string
+          maxLength: 120
+        attribution:
+          type: string
+          maxLength: 200
+        is_active:
+          type: boolean
+        sync_interval_hours:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        last_run_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_run:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - kind
+      - last_run
+      - name
+      - slug
+    ImportTriggerRequest:
+      type: object
+      properties:
+        source:
+          type: string
+          minLength: 1
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - source
+    KindCf3Enum:
+      enum:
+      - POSTER
+      - GALLERY
+      type: string
+      description: |-
+        * `POSTER` - Affiche
+        * `GALLERY` - Galerie
+    LanguageEnum:
+      enum:
+      - fr
+      - nl
+      - en
+      type: string
+      description: |-
+        * `fr` - Français
+        * `nl` - Nederlands
+        * `en` - English
+    LanguagesEnum:
+      enum:
+      - fr
+      - nl
+      - en
+      type: string
+      description: |-
+        * `fr` - Français
+        * `nl` - Nederlands
+        * `en` - English
+    LatLon:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+      required:
+      - lat
+      - lon
+    LatLonField:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+      required:
+      - lat
+      - lon
+    Me:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        display_name:
+          type: string
+          maxLength: 80
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        email_verified:
+          type: boolean
+          readOnly: true
+        trust_level:
+          allOf:
+          - $ref: '#/components/schemas/TrustLevelEnum'
+          readOnly: true
+        roles:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - email_verified
+      - id
+      - roles
+      - trust_level
+    MeRequest:
+      type: object
+      properties:
+        display_name:
+          type: string
+          maxLength: 80
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/KindCf3Enum'
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        credits:
+          type: string
+          maxLength: 200
+        alt_text:
+          type: string
+          maxLength: 200
+        rights_confirmed:
+          type: boolean
+        width:
+          type: integer
+          readOnly: true
+          nullable: true
+        height:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - height
+      - id
+      - url
+      - width
+    MediaUploadRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+        kind:
+          $ref: '#/components/schemas/KindCf3Enum'
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        credits:
+          type: string
+          maxLength: 200
+        alt_text:
+          type: string
+          maxLength: 200
+        rights_confirmed:
+          type: boolean
+      required:
+      - image
+    MemberRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          default: EDITOR
+      required:
+      - email
+    ModerationActionActionEnum:
+      enum:
+      - APPROVE
+      - REJECT
+      - REQUEST_CHANGES
+      - UNPUBLISH
+      type: string
+      description: |-
+        * `APPROVE` - APPROVE
+        * `REJECT` - REJECT
+        * `REQUEST_CHANGES` - REQUEST_CHANGES
+        * `UNPUBLISH` - UNPUBLISH
+    ModerationActionRequest:
+      type: object
+      properties:
+        event:
+          type: string
+          format: uuid
+        action:
+          $ref: '#/components/schemas/ModerationActionActionEnum'
+        reason_code:
+          oneOf:
+          - $ref: '#/components/schemas/ReasonCodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        comment:
+          type: string
+      required:
+      - action
+      - event
+    ModerationQueueItem:
+      type: object
+      description: 'Élément de la file « À valider » (SCR-10) : confiance, alerte
+        lien, doublons, historique.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 200
+          pattern: ^[-a-zA-Z0-9_]+$
+        title:
+          type: string
+          maxLength: 160
+        status:
+          $ref: '#/components/schemas/EventStatusEnum'
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        primary_category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        organizer:
+          allOf:
+          - $ref: '#/components/schemas/Organizer'
+          readOnly: true
+        venue:
+          allOf:
+          - $ref: '#/components/schemas/Venue'
+          readOnly: true
+        poster:
+          allOf:
+          - $ref: '#/components/schemas/Media'
+          nullable: true
+          readOnly: true
+        pricing:
+          allOf:
+          - $ref: '#/components/schemas/Pricing'
+          readOnly: true
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        visibility:
+          allOf:
+          - $ref: '#/components/schemas/VisibilityEnum'
+          readOnly: true
+        languages:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        next_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        first_start:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_end:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        is_long:
+          type: boolean
+          readOnly: true
+          default: false
+        distance_km:
+          type: number
+          format: double
+          nullable: true
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        secondary_categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryMini'
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagMini'
+          readOnly: true
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Occurrence'
+          readOnly: true
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+          readOnly: true
+        online_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        ticketing:
+          allOf:
+          - $ref: '#/components/schemas/Ticketing'
+          nullable: true
+          readOnly: true
+        registration_required:
+          type: boolean
+        accessibility:
+          allOf:
+          - $ref: '#/components/schemas/EventAccessibility'
+          readOnly: true
+        urls:
+          allOf:
+          - $ref: '#/components/schemas/EventUrls'
+          readOnly: true
+        is_favorite:
+          type: boolean
+          readOnly: true
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        organization:
+          type: string
+          readOnly: true
+        draft_step:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Dernière étape du formulaire
+        source:
+          $ref: '#/components/schemas/SourceEnum'
+        link_review_required:
+          type: boolean
+          description: Lien billetterie hors liste blanche à revoir (RG-21)
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_confirmed_at:
+          type: string
+          format: date-time
+          nullable: true
+        submission_errors:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        trust_level:
+          type: string
+          readOnly: true
+        decisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Decision'
+          readOnly: true
+        duplicates:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+        open_reports:
+          type: integer
+          readOnly: true
+        owner_email:
+          type: string
+          format: email
+          readOnly: true
+      required:
+      - accessibility
+      - created_at
+      - decisions
+      - description
+      - distance_km
+      - duplicates
+      - first_start
+      - id
+      - is_favorite
+      - is_long
+      - languages
+      - last_end
+      - media
+      - next_start
+      - occurrences
+      - open_reports
+      - organization
+      - organizer
+      - owner_email
+      - poster
+      - pricing
+      - primary_category
+      - secondary_categories
+      - slug
+      - submission_errors
+      - tags
+      - ticketing
+      - title
+      - trust_level
+      - updated_at
+      - urls
+      - venue
+      - visibility
+    NewsletterSubscribeRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        area:
+          type: string
+          minLength: 1
+          nullable: true
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        consent:
+          type: boolean
+          writeOnly: true
+      required:
+      - consent
+      - email
+    Occurrence:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          maxLength: 40
+        status:
+          $ref: '#/components/schemas/OccurrenceStatusEnum'
+        capacity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        note:
+          type: string
+          maxLength: 200
+      required:
+      - ends_at
+      - id
+      - starts_at
+    OccurrenceRequest:
+      type: object
+      properties:
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 40
+        status:
+          $ref: '#/components/schemas/OccurrenceStatusEnum'
+        capacity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        note:
+          type: string
+          maxLength: 200
+      required:
+      - ends_at
+      - starts_at
+    OccurrenceStatusEnum:
+      enum:
+      - SCHEDULED
+      - CANCELLED
+      - POSTPONED
+      - SOLD_OUT
+      type: string
+      description: |-
+        * `SCHEDULED` - Prévue
+        * `CANCELLED` - Annulée
+        * `POSTPONED` - Reportée
+        * `SOLD_OUT` - Complet
+    OrganizationPrivate:
+      type: object
+      description: 'Profil public (SCR-07) : badge vérifié, revendicable.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 160
+        slug:
+          type: string
+          maxLength: 180
+          pattern: ^[-a-zA-Z0-9_]+$
+        type:
+          $ref: '#/components/schemas/TypeFe6Enum'
+        description:
+          type: string
+        logo:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        verified:
+          type: boolean
+          readOnly: true
+        is_claimable:
+          type: boolean
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        bce_number:
+          type: string
+          title: Numéro BCE
+          maxLength: 12
+        verification_status:
+          $ref: '#/components/schemas/VerificationStatusEnum'
+        trust_level:
+          $ref: '#/components/schemas/TrustLevelEnum'
+        role:
+          type: string
+          nullable: true
+          readOnly: true
+        members:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - id
+      - logo
+      - members
+      - name
+      - role
+      - slug
+      - verified
+    OrganizationPublic:
+      type: object
+      description: 'Profil public (SCR-07) : badge vérifié, revendicable.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 160
+        slug:
+          type: string
+          maxLength: 180
+          pattern: ^[-a-zA-Z0-9_]+$
+        type:
+          $ref: '#/components/schemas/TypeFe6Enum'
+        description:
+          type: string
+        logo:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        verified:
+          type: boolean
+          readOnly: true
+        is_claimable:
+          type: boolean
+      required:
+      - id
+      - logo
+      - name
+      - slug
+      - verified
+    OrganizationWrite:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 160
+        type:
+          $ref: '#/components/schemas/TypeFe6Enum'
+        description:
+          type: string
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        bce_number:
+          type: string
+          title: Numéro BCE
+          maxLength: 12
+      required:
+      - name
+    OrganizationWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        type:
+          $ref: '#/components/schemas/TypeFe6Enum'
+        description:
+          type: string
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        bce_number:
+          type: string
+          title: Numéro BCE
+          maxLength: 12
+      required:
+      - name
+    Organizer:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          nullable: true
+        verified:
+          type: boolean
+        trust_level:
+          type: string
+      required:
+      - name
+      - slug
+      - trust_level
+      - verified
+    PaginatedAuditLogList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+    PaginatedEventOwnerList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventOwner'
+    PaginatedOrganizationPublicList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationPublic'
+    PasswordResetConfirmRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 128
+        password:
+          type: string
+          minLength: 10
+      required:
+      - password
+      - token
+    PatchedEventWriteRequest:
+      type: object
+      description: Création et édition par l'organisateur (EVT-02). Séances imbriquées,
+        remplacées en bloc.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        description:
+          type: string
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguagesEnum'
+        primary_category:
+          type: string
+          minLength: 1
+        secondary_categories:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        tags:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        format:
+          $ref: '#/components/schemas/FormatEnum'
+        venue:
+          type: integer
+          nullable: true
+        online_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        pricing_type:
+          $ref: '#/components/schemas/PricingTypeEnum'
+        price_min:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        price_max:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        price_details:
+          type: string
+          maxLength: 200
+        ticketing_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        registration_required:
+          type: boolean
+        age_policy:
+          $ref: '#/components/schemas/AgePolicyEnum'
+        min_age:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        is_family_friendly:
+          type: boolean
+        accessibility_notes:
+          type: string
+          maxLength: 300
+        organization:
+          type: string
+          minLength: 1
+          nullable: true
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/OccurrenceRequest'
+        draft_step:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Dernière étape du formulaire
+    PatchedMeRequest:
+      type: object
+      properties:
+        display_name:
+          type: string
+          maxLength: 80
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+    PatchedOrganizationWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        type:
+          $ref: '#/components/schemas/TypeFe6Enum'
+        description:
+          type: string
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        bce_number:
+          type: string
+          title: Numéro BCE
+          maxLength: 12
+    PatchedPreferencesRequest:
+      type: object
+      properties:
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        followed_areas:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        followed_categories:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        notify_new_events:
+          type: boolean
+        notify_weekly_selection:
+          type: boolean
+        notify_favorite_reminders:
+          type: boolean
+    Preferences:
+      type: object
+      properties:
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        followed_areas:
+          type: array
+          items:
+            type: string
+        followed_categories:
+          type: array
+          items:
+            type: string
+        notify_new_events:
+          type: boolean
+        notify_weekly_selection:
+          type: boolean
+        notify_favorite_reminders:
+          type: boolean
+      required:
+      - followed_areas
+      - followed_categories
+    Pricing:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TypeB72Enum'
+        min:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        max:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        currency:
+          type: string
+        details:
+          type: string
+      required:
+      - currency
+      - details
+      - max
+      - min
+      - type
+    PricingTypeEnum:
+      enum:
+      - FREE
+      - PAID
+      - PWYW
+      type: string
+      description: |-
+        * `FREE` - Gratuit
+        * `PAID` - Payant
+        * `PWYW` - Participation libre
+    ReasonCodeEnum:
+      enum:
+      - INCOMPLETE
+      - NOT_PUBLIC
+      - WRONG_DATE_PLACE
+      - COMMERCIAL
+      - ILLEGAL
+      - HATE
+      - DUPLICATE
+      - SUSPICIOUS_LINK
+      - RIGHTS
+      - ADULT_VISUAL
+      - OTHER
+      type: string
+      description: |-
+        * `INCOMPLETE` - Informations incomplètes ou incompréhensibles
+        * `NOT_PUBLIC` - Événement non public / non ouvert sur inscription
+        * `WRONG_DATE_PLACE` - Date ou lieu invalide
+        * `COMMERCIAL` - Publicité commerciale déguisée
+        * `ILLEGAL` - Promotion d'activités illégales
+        * `HATE` - Contenu discriminatoire ou haineux
+        * `DUPLICATE` - Doublon d'un événement existant
+        * `SUSPICIOUS_LINK` - Lien de billetterie suspect ou hors liste blanche
+        * `RIGHTS` - Droits sur les visuels non garantis
+        * `ADULT_VISUAL` - Visuel inadapté (18+)
+        * `OTHER` - Autre (voir commentaire)
+    Register:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        display_name:
+          type: string
+          maxLength: 80
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+      required:
+      - email
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 10
+        display_name:
+          type: string
+          maxLength: 80
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        accept_terms:
+          type: boolean
+          writeOnly: true
+      required:
+      - accept_terms
+      - email
+      - password
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        event:
+          type: string
+          readOnly: true
+        organization:
+          type: string
+          readOnly: true
+        reporter:
+          type: string
+          readOnly: true
+        handled_by:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        reporter_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusF81Enum'
+        handled_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_note:
+          type: string
+      required:
+      - category
+      - created_at
+      - event
+      - handled_by
+      - id
+      - organization
+      - reporter
+      - updated_at
+    ReportCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        event:
+          type: string
+        organization:
+          type: string
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        description:
+          type: string
+        reporter_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF81Enum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category
+      - created_at
+      - id
+      - status
+    ReportCreateRequest:
+      type: object
+      properties:
+        event:
+          type: string
+          minLength: 1
+        organization:
+          type: string
+          minLength: 1
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        description:
+          type: string
+        reporter_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+      required:
+      - category
+    ReportDecisionRequest:
+      type: object
+      properties:
+        founded:
+          type: boolean
+        note:
+          type: string
+      required:
+      - founded
+    RoleEnum:
+      enum:
+      - OWNER
+      - EDITOR
+      type: string
+      description: |-
+        * `OWNER` - Propriétaire
+        * `EDITOR` - Éditeur
+    Selection:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        week_start:
+          type: string
+          format: date
+          description: Lundi de la semaine concernée
+        title:
+          type: string
+          maxLength: 160
+        intro:
+          type: string
+        send_status:
+          $ref: '#/components/schemas/SelectionSendStatusEnum'
+        sent_at:
+          type: string
+          format: date-time
+          nullable: true
+        recipients_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        editor:
+          type: string
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SelectionItem'
+          readOnly: true
+      required:
+      - editor
+      - id
+      - items
+      - week_start
+    SelectionItem:
+      type: object
+      properties:
+        event:
+          allOf:
+          - $ref: '#/components/schemas/EventCard'
+          readOnly: true
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        blurb:
+          type: string
+          maxLength: 300
+      required:
+      - event
+    SelectionSendStatusEnum:
+      enum:
+      - DRAFT
+      - READY
+      - SENT
+      type: string
+      description: |-
+        * `DRAFT` - Brouillon
+        * `READY` - Prête à l'envoi
+        * `SENT` - Envoyée
+    SelectionWriteRequest:
+      type: object
+      properties:
+        week_start:
+          type: string
+          format: date
+        title:
+          type: string
+          maxLength: 160
+        intro:
+          type: string
+        events:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        send_status:
+          $ref: '#/components/schemas/SelectionWriteSendStatusEnum'
+    SelectionWriteSendStatusEnum:
+      enum:
+      - DRAFT
+      - READY
+      type: string
+      description: |-
+        * `DRAFT` - DRAFT
+        * `READY` - READY
+    SourceEnum:
+      enum:
+      - MANUAL
+      - IMPORT
+      - INTERNAL
+      type: string
+      description: |-
+        * `MANUAL` - Saisie organisateur
+        * `IMPORT` - Import partenaire
+        * `INTERNAL` - Saisie catalogue WIGO
+    Stats:
+      type: object
+      properties:
+        views:
+          type: integer
+        ticket_clicks:
+          type: integer
+        favorites:
+          type: integer
+        calendar_adds:
+          type: integer
+        shares:
+          type: integer
+        per_day:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - calendar_adds
+      - favorites
+      - per_day
+      - shares
+      - ticket_clicks
+      - views
+    StatusF81Enum:
+      enum:
+      - OPEN
+      - FOUNDED
+      - DISMISSED
+      type: string
+      description: |-
+        * `OPEN` - Ouvert
+        * `FOUNDED` - Fondé
+        * `DISMISSED` - Classé sans suite
+    TagMini:
+      type: object
+      properties:
+        slug:
+          type: string
+          maxLength: 60
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: object
+          additionalProperties:
+            type: string
+          readOnly: true
+      required:
+      - name
+      - slug
+    Ticketing:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        external:
+          type: boolean
+        note:
+          type: string
+      required:
+      - external
+      - note
+      - url
+    TokenObtainPair:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - refresh
+    TokenObtainPairRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    TokenRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - token
+    TrustLevelEnum:
+      enum:
+      - NEW
+      - CONFIRMED
+      - VERIFIED
+      type: string
+      description: |-
+        * `NEW` - Nouveau
+        * `CONFIRMED` - Confirmé
+        * `VERIFIED` - Vérifié
+    TypeB72Enum:
+      enum:
+      - FREE
+      - PAID
+      - PWYW
+      type: string
+      description: |-
+        * `FREE` - Gratuit
+        * `PAID` - Payant
+        * `PWYW` - Participation libre
+    TypeFe6Enum:
+      enum:
+      - VENUE
+      - ASSOCIATION
+      - COLLECTIVE
+      - COMPANY
+      - PUBLIC
+      - OTHER
+      type: string
+      description: |-
+        * `VENUE` - Salle / lieu
+        * `ASSOCIATION` - Association
+        * `COLLECTIVE` - Collectif
+        * `COMPANY` - Entreprise
+        * `PUBLIC` - Institution publique
+        * `OTHER` - Autre
+    Venue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 160
+        slug:
+          type: string
+          maxLength: 180
+          pattern: ^[-a-zA-Z0-9_]+$
+        address:
+          type: string
+          readOnly: true
+        street:
+          type: string
+          maxLength: 160
+        house_number:
+          type: string
+          maxLength: 16
+        postal_code:
+          type: string
+          maxLength: 10
+        city:
+          type: string
+          maxLength: 80
+        country:
+          type: string
+          maxLength: 2
+        area:
+          type: string
+          readOnly: true
+        location:
+          allOf:
+          - $ref: '#/components/schemas/LatLonField'
+          nullable: true
+          readOnly: true
+        accessibility: {}
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+      required:
+      - address
+      - area
+      - id
+      - location
+      - name
+      - slug
+    VenueMini:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        city:
+          type: string
+        area:
+          type: string
+          nullable: true
+        location:
+          allOf:
+          - $ref: '#/components/schemas/LatLon'
+          nullable: true
+      required:
+      - area
+      - city
+      - location
+      - name
+      - slug
+    VenueWrite:
+      type: object
+      description: Création d'un lieu depuis le formulaire (étape 2). lat/lon fournis
+        par le géocodage.
+      properties:
+        name:
+          type: string
+          maxLength: 160
+        street:
+          type: string
+          maxLength: 160
+        house_number:
+          type: string
+          maxLength: 16
+        postal_code:
+          type: string
+          maxLength: 10
+        city:
+          type: string
+          maxLength: 80
+        country:
+          type: string
+          maxLength: 2
+        area:
+          type: string
+          nullable: true
+        accessibility: {}
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+      required:
+      - name
+    VenueWriteRequest:
+      type: object
+      description: Création d'un lieu depuis le formulaire (étape 2). lat/lon fournis
+        par le géocodage.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        street:
+          type: string
+          maxLength: 160
+        house_number:
+          type: string
+          maxLength: 16
+        postal_code:
+          type: string
+          maxLength: 10
+        city:
+          type: string
+          minLength: 1
+          maxLength: 80
+        country:
+          type: string
+          minLength: 1
+          maxLength: 2
+        area:
+          type: string
+          minLength: 1
+          nullable: true
+        lat:
+          type: number
+          format: double
+          maximum: 90
+          minimum: -90
+          writeOnly: true
+        lon:
+          type: number
+          format: double
+          maximum: 180
+          minimum: -180
+          writeOnly: true
+        accessibility: {}
+        website:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+      required:
+      - name
+    VerificationStatusEnum:
+      enum:
+      - UNVERIFIED
+      - PENDING
+      - VERIFIED
+      type: string
+      description: |-
+        * `UNVERIFIED` - Non vérifiée
+        * `PENDING` - En cours
+        * `VERIFIED` - Vérifiée
+    VisibilityEnum:
+      enum:
+      - STANDARD
+      - FEATURED
+      - PARTNER
+      type: string
+      description: |-
+        * `STANDARD` - Standard
+        * `FEATURED` - Sélection WIGO
+        * `PARTNER` - Partenaire
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
