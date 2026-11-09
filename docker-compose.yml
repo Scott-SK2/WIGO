@@ -1,0 +1,94 @@
+# Stack de développement WIGO : PostGIS, Redis, API, worker Celery, beat, web.
+# `make up` ou `docker compose up --build`. Variables : copier .env.example en .env.
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: wigo
+      POSTGRES_USER: wigo
+      POSTGRES_PASSWORD: wigo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wigo -d wigo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./apps/api
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: wigo.settings.dev
+      DATABASE_URL: postgis://wigo:wigo@db:5432/wigo
+      REDIS_URL: redis://redis:6379/0
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,api
+    command: sh -c "python manage.py migrate --noinput && python manage.py seed_reference && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./apps/api:/app
+      - media:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: ./apps/api
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: wigo.settings.dev
+      DATABASE_URL: postgis://wigo:wigo@db:5432/wigo
+      REDIS_URL: redis://redis:6379/0
+    command: celery -A wigo worker -l info --concurrency 2
+    volumes:
+      - ./apps/api:/app
+      - media:/app/media
+    depends_on:
+      - api
+
+  beat:
+    build: ./apps/api
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: wigo.settings.dev
+      DATABASE_URL: postgis://wigo:wigo@db:5432/wigo
+      REDIS_URL: redis://redis:6379/0
+    command: celery -A wigo beat -l info
+    volumes:
+      - ./apps/api:/app
+    depends_on:
+      - api
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  media:

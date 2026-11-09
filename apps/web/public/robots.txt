@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /*/espace
+Disallow: /*/compte
+Sitemap: https://wigo.be/sitemap.xml
